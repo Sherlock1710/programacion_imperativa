@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> 
 #include <string>
 #include <vector>
 using namespace std;
@@ -26,7 +27,7 @@ ostream& operator<<(ostream& os, const Cliente& cliente) {
     return os;
 }
 
-// Función para agregar nuevos clientes
+// Función para agregar nuevos clientes y crear archivos de texto
 void agregarClientes(vector<Cliente>& clientes, int n) {
     for (int i = 0; i < n; ++i) {
         Cliente c;
@@ -44,6 +45,20 @@ void agregarClientes(vector<Cliente>& clientes, int n) {
         cin >> c.saldo;
         clientes.push_back(c);
 
+        // Crear archivo de texto para el cliente
+        ofstream archivo("cliente" + to_string(i + 1) + ".txt");
+        if (archivo.is_open()) {
+            archivo << "Nombre: " << c.nombre << "\n";
+            archivo << "Numero de documento: " << c.num_doc << "\n";
+            archivo << "Numero de cuenta: " << c.info_cuenta.num_cuenta << "\n";
+            archivo << "Tipo de cuenta: " << c.info_cuenta.tipo_cuenta << "\n";
+            archivo << "Saldo: " << c.saldo << "\n";
+            archivo.close();
+            cout << "Archivo de texto creado para el cliente " << i + 1 << endl;
+        } else {
+            cout << "Error al crear el archivo para el cliente " << i + 1 << endl;
+        }
+
         cin.clear();
 
         system("cls");
@@ -57,10 +72,10 @@ void mostrarClientes(const vector<Cliente>& clientes) {
     }
 }
 
-// Función para realizar una transferencia entre dos clientes
+// Función para realizar una transferencia entre dos clientes y actualizar los saldos en los archivos de texto
 bool realizarTransferencia(vector<Cliente>& clientes, long long int num_cuenta_origen, long long int num_cuenta_destino, long long int monto) {
     
-	Cliente* cliente_origen = nullptr;
+    Cliente* cliente_origen = nullptr;
     Cliente* cliente_destino = nullptr;
 
     // Buscar los clientes por número de cuenta
@@ -79,7 +94,31 @@ bool realizarTransferencia(vector<Cliente>& clientes, long long int num_cuenta_o
     if (cliente_origen && cliente_destino && cliente_origen->saldo >= monto) {
         cliente_origen->saldo -= monto;
         cliente_destino->saldo += monto;
-        return true;
+
+        // Actualizar los archivos de texto con los nuevos saldos
+        ofstream archivo_origen("cliente" + to_string(cliente_origen->info_cuenta.num_cuenta) + ".txt", ios::trunc);
+        ofstream archivo_destino("cliente" + to_string(cliente_destino->info_cuenta.num_cuenta) + ".txt", ios::trunc);
+
+        if (archivo_origen.is_open() && archivo_destino.is_open()) {
+            archivo_origen << "Nombre: " << cliente_origen->nombre << "\n";
+            archivo_origen << "Numero de documento: " << cliente_origen->num_doc << "\n";
+            archivo_origen << "Numero de cuenta: " << cliente_origen->info_cuenta.num_cuenta << "\n";
+            archivo_origen << "Tipo de cuenta: " << cliente_origen->info_cuenta.tipo_cuenta << "\n";
+            archivo_origen << "Saldo: " << cliente_origen->saldo << "\n";
+            archivo_origen.close();
+
+            archivo_destino << "Nombre: " << cliente_destino->nombre << "\n";
+            archivo_destino << "Numero de documento: " << cliente_destino->num_doc << "\n";
+            archivo_destino << "Numero de cuenta: " << cliente_destino->info_cuenta.num_cuenta << "\n";
+            archivo_destino << "Tipo de cuenta: " << cliente_destino->info_cuenta.tipo_cuenta << "\n";
+            archivo_destino << "Saldo: " << cliente_destino->saldo << "\n";
+            archivo_destino.close();
+
+            return true;
+        } else {
+            cout << "Error al abrir los archivos para actualizar los saldos." << endl;
+            return false;
+        }
     }
     return false;
 }
