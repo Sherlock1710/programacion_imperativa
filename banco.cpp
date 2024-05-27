@@ -76,9 +76,9 @@ bool realizarTransferencia(vector<Cliente>& clientes, long long int num_cuenta_o
     }
 
     // Verificar que ambos clientes existan y que el saldo sea suficiente
-    if (cliente_origen && cliente_destino && cliente_origen.saldo >= monto) {
-        cliente_origen.saldo -= monto;
-        cliente_destino.saldo += monto;
+    if (cliente_origen && cliente_destino && cliente_origen->saldo >= monto) {
+        cliente_origen->saldo -= monto;
+        cliente_destino->saldo += monto;
         return true;
     }
     return false;
